@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "E:\\\u6C42\u804C\\ONI_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E3B57FB4-AD17-498D-AE10-3957B005CF1F}|\u8863\u7269\\\u7F1D\u7EAB\u673A\u6DFB\u52A0.csproj|e:\\\u6C42\u804C\\oni_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\workerbehindbuildingpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3B57FB4-AD17-498D-AE10-3957B005CF1F}|\u8863\u7269\\\u7F1D\u7EAB\u673A\u6DFB\u52A0.csproj|solutionrelative:\u8863\u7269\\workerbehindbuildingpatch.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E3B57FB4-AD17-498D-AE10-3957B005CF1F}|\u8863\u7269\\\u7F1D\u7EAB\u673A\u6DFB\u52A0.csproj|e:\\\u6C42\u804C\\oni_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E3B57FB4-AD17-498D-AE10-3957B005CF1F}|\u8863\u7269\\\u7F1D\u7EAB\u673A\u6DFB\u52A0.csproj|solutionrelative:\u8863\u7269\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WorkerBehindBuildingPatch.cs",
+              "DocumentMoniker": "E:\\\u6C42\u804C\\ONI_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\WorkerBehindBuildingPatch.cs",
+              "RelativeDocumentMoniker": "\u8863\u7269\\WorkerBehindBuildingPatch.cs",
+              "ToolTip": "E:\\\u6C42\u804C\\ONI_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\WorkerBehindBuildingPatch.cs*",
+              "RelativeToolTip": "\u8863\u7269\\WorkerBehindBuildingPatch.cs*",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAA4AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-17T14:05:33.041Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "E:\\\u6C42\u804C\\ONI_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\Class1.cs",
+              "RelativeDocumentMoniker": "\u8863\u7269\\Class1.cs",
+              "ToolTip": "E:\\\u6C42\u804C\\ONI_mods\\001_\u6DFB\u52A0\u7F1D\u7EAB\u673A\\\u7F1D\u7EAB\u673A\u6DFB\u52A0\\\u8863\u7269\\Class1.cs",
+              "RelativeToolTip": "\u8863\u7269\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-13T12:29:00.134Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{269a02dc-6af8-11d3-bdc4-00c04f688e50}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
