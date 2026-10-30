@@ -62,7 +62,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Class1.cs" />
+    <Compile Include="Properties\Class1.cs" />
+    <Compile Include="Properties\StandaloneBuilding.cs" />
     <Compile Include="WorkerBehindBuildingPatch.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

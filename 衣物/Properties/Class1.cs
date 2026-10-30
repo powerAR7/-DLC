@@ -11,6 +11,13 @@ public class StandaloneBuildingMod : KMod.UserMod2
     public override void OnLoad(Harmony harmony)
     {
         base.OnLoad(harmony);
+        
+        LocString.CreateLocStringKeys(typeof(MyModStrings), "STRINGS");
+
+        // 直接使用 ModUtil 挂载建筑。
+        // 第一个参数 "MyCustomCategory" 是全新的分类名（游戏会自动为你新建一个分类标签）
+        // 第二个参数 "StandaloneBuilding" 是你的建筑ID
+        ModUtil.AddBuildingToPlanScreen("MyCustomCategory", "StandaloneBuilding");
     }
 }
 
@@ -171,67 +178,7 @@ public class ClothingFabricatorConfig : IBuildingConfig
     public const string ID = "SewingMachine";
 }
 
-public class StandaloneBuildingConfig : IBuildingConfig
-{
-    // 保留现有 ID，避免更改后影响已放置建筑的存档数据。
-    public const string ID = "StandaloneBuilding";
 
-    public override BuildingDef CreateBuildingDef()
-    {
-        // 使用原版储物柜动画，建筑占地为 1×2 格。
-        BuildingDef buildingDef = BuildingTemplates.CreateBuildingDef(
-            ID,
-            1,
-            2,
-            "storagelocker_kanim",
-            30,
-            10f,
-            TUNING.BUILDINGS.CONSTRUCTION_MASS_KG.TIER4,
-            MATERIALS.RAW_MINERALS_OR_METALS,
-            1600f,
-            BuildLocationRule.OnFloor,
-            TUNING.BUILDINGS.DECOR.PENALTY.TIER1,
-            NOISE_POLLUTION.NONE,
-            0.2f);
-
-        buildingDef.Floodable = false;
-        buildingDef.AudioCategory = "Metal";
-        buildingDef.Overheatable = false;
-        buildingDef.AddSearchTerms(SEARCH_TERMS.STORAGE);
-        return buildingDef;
-    }
-
-    public override void ConfigureBuildingTemplate(GameObject go, Tag prefab_tag)
-    {
-        SoundEventVolumeCache.instance.AddVolume(
-            "storagelocker_kanim",
-            "StorageLocker_Hit_metallic_low",
-            NOISE_POLLUTION.NOISY.TIER1);
-        Prioritizable.AddRef(go);
-
-        Storage storage = go.AddOrGet<Storage>();
-        storage.capacityKg = 600f;
-        storage.showInUI = true;
-        storage.allowItemRemoval = true;
-        storage.showDescriptor = true;
-        // 使用单一过滤标签，储物柜只接受衣物。
-        storage.storageFilters = new List<Tag> { GameTags.Clothes };
-        storage.storageFullMargin = STORAGE.STORAGE_LOCKER_FILLED_MARGIN;
-        storage.fetchCategory = Storage.FetchCategory.GeneralStorage;
-        storage.showCapacityStatusItem = true;
-        storage.showCapacityAsMainStatus = true;
-
-        go.AddOrGet<CopyBuildingSettings>().copyGroupTag = GameTags.StorageLocker;
-        go.AddOrGet<StorageLocker>();
-        go.AddOrGet<UserNameable>();
-        go.AddOrGetDef<RocketUsageRestriction.Def>();
-    }
-
-    public override void DoPostConfigureComplete(GameObject go)
-    {
-        go.AddOrGetDef<StorageController.Def>();
-    }
-}
 
 namespace 新建建筑
 {
@@ -264,8 +211,15 @@ namespace 独立建筑
         }
     }
 }
-
-
-/*简单定义一个建筑，缝纫机（抄写纺织机）
- * 不消耗电力，需要小人操作
- */
+public class MyModStrings
+{
+    public class UI
+    {
+        public class BUILDINGCATEGORIES
+        {
+            // 变量名必须是【分类名全大写】_NAME
+            public static LocString MYCUSTOMCATEGORY_NAME = "我的专属建筑";
+            public static LocString MYCUSTOMCATEGORY_TOOLTIP = "这里存放着我制作的自定义建筑。";
+        }
+    }
+}
