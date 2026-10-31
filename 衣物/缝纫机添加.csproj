@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="HuLaTangConfig.cs" />
     <Compile Include="Properties\Class1.cs" />
     <Compile Include="Properties\StandaloneBuilding.cs" />
     <Compile Include="WorkerBehindBuildingPatch.cs" />

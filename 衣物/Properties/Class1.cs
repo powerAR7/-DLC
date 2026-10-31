@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using STRINGS;
 using TUNING;
 using UnityEngine;
@@ -8,6 +9,9 @@ using HarmonyLib;
 // ONI 通过 UserMod2 发现 Mod 入口；调用基类以启用本程序集中的 Harmony 补丁。
 public class StandaloneBuildingMod : KMod.UserMod2
 {
+    public static KAnimFile SewingAnim;
+    private const string SewingAnimationDirectory = @"C:\Users\m1567\Documents\Klei\OxygenNotIncluded\mods\Dev\缝纫机\anim\sewingmachine";
+
     public override void OnLoad(Harmony harmony)
     {
         base.OnLoad(harmony);
@@ -19,6 +23,43 @@ public class StandaloneBuildingMod : KMod.UserMod2
         // 第二个参数 "StandaloneBuilding" 是你的建筑ID
         ModUtil.AddBuildingToPlanScreen("MyCustomCategory", "StandaloneBuilding");
     }
+
+    internal static void LoadSewingAnimation()
+    {
+        if (SewingAnim != null)
+            return;
+
+        string texturePath = Path.Combine(SewingAnimationDirectory, "sewingmachine_0.png");
+        string animPath = Path.Combine(SewingAnimationDirectory, "sewingmachine_anim.bytes");
+        string buildPath = Path.Combine(SewingAnimationDirectory, "sewingmachine_build.bytes");
+        foreach (string assetPath in new[] { texturePath, animPath, buildPath })
+        {
+            if (!File.Exists(assetPath))
+                throw new FileNotFoundException("Missing sewing machine animation asset.", assetPath);
+        }
+
+        KAnimFile.Mod animationMod = new KAnimFile.Mod();
+        animationMod.anim = File.ReadAllBytes(animPath);
+        animationMod.build = File.ReadAllBytes(buildPath);
+        Texture2D texture = ModUtil.LoadTexture(texturePath);
+        if (texture == null)
+            throw new InvalidDataException("Failed to load sewing machine animation texture: " + texturePath);
+        animationMod.textures.Add(texture);
+
+        if (!animationMod.IsValid())
+            throw new InvalidDataException("The sewing machine animation assets are incomplete in " + SewingAnimationDirectory);
+
+        SewingAnim = ModUtil.AddKAnimMod("sewingmachine_kanim", animationMod);
+    }
+}
+
+[HarmonyPatch(typeof(KAnimGroupFile), nameof(KAnimGroupFile.LoadGroupResourceFile))]
+public static class SewingMachineAnimationRegistrationPatch
+{
+    public static void Postfix()
+    {
+        StandaloneBuildingMod.LoadSewingAnimation();
+    }
 }
 
 public class ClothingFabricatorConfig : IBuildingConfig
@@ -29,7 +70,7 @@ public class ClothingFabricatorConfig : IBuildingConfig
         string id = "SewingMachine";
         int width = 2;
         int height = 2;
-        string anim = "fishingstation_kanim";
+        string anim = "sewingmachine_kanim";
         int hitpoints = 100;
         float construction_time = 240f;
         float[] tier = TUNING.BUILDINGS.CONSTRUCTION_MASS_KG.TIER3;
@@ -43,6 +84,7 @@ public class ClothingFabricatorConfig : IBuildingConfig
         buildingDef.ViewMode = OverlayModes.Power.ID;
         buildingDef.AudioCategory = "Metal";
         buildingDef.PowerInputOffset = new CellOffset(2, 0);
+        buildingDef.AnimFiles = new KAnimFile[] { StandaloneBuildingMod.SewingAnim };
         return buildingDef;
     }
 
