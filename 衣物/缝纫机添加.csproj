@@ -62,7 +62,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CookingStationPatch.cs" />
     <Compile Include="HuLaTangConfig.cs" />
+    <Compile Include="动画加载项.cs" />
+    <Compile Include="核心组件.cs" />
+    <Compile Include="衣裳_1.cs" />
     <Compile Include="Properties\Class1.cs" />
     <Compile Include="Properties\StandaloneBuilding.cs" />
     <Compile Include="WorkerBehindBuildingPatch.cs" />

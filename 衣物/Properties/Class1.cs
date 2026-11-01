@@ -15,6 +15,7 @@ public class StandaloneBuildingMod : KMod.UserMod2
     public override void OnLoad(Harmony harmony)
     {
         base.OnLoad(harmony);
+        MyMod.Clothing.ClothingMod.Initialize();
         
         LocString.CreateLocStringKeys(typeof(MyModStrings), "STRINGS");
 
@@ -62,7 +63,7 @@ public static class SewingMachineAnimationRegistrationPatch
     }
 }
 
-public class ClothingFabricatorConfig : IBuildingConfig
+public class SewingMachineConfig : IBuildingConfig
 {
    
     public override BuildingDef CreateBuildingDef()
