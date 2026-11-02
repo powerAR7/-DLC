@@ -16,13 +16,6 @@ public class StandaloneBuildingMod : KMod.UserMod2
     {
         base.OnLoad(harmony);
         MyMod.Clothing.ClothingMod.Initialize();
-        
-        LocString.CreateLocStringKeys(typeof(MyModStrings), "STRINGS");
-
-        // 直接使用 ModUtil 挂载建筑。
-        // 第一个参数 "MyCustomCategory" 是全新的分类名（游戏会自动为你新建一个分类标签）
-        // 第二个参数 "StandaloneBuilding" 是你的建筑ID
-        ModUtil.AddBuildingToPlanScreen("MyCustomCategory", "StandaloneBuilding");
     }
 
     internal static void LoadSewingAnimation()
@@ -223,46 +216,25 @@ public class SewingMachineConfig : IBuildingConfig
 
 
 
-namespace 新建建筑
+[HarmonyPatch(typeof(GeneratedBuildings), "LoadGeneratedBuildings")]
+internal static class GeneratedBuildings_LoadGeneratedBuildings
 {
-    [HarmonyPatch(typeof(GeneratedBuildings), "LoadGeneratedBuildings")]
-    public class GeneratedBuildings_LoadGeneratedBuildings
-    {
-        public static void Prefix()
-        {
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.NAME", "缝纫机" });
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.EFFECT", "在通往时尚的道路上也是一种时尚" });
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.DESC", "可以通过相应原料生产服装" });
-            ModUtil.AddBuildingToPlanScreen("Furniture", "SewingMachine");
-        }
-    }
-}
+    private static bool buildingsAddedToPlanScreen;
 
-namespace 独立建筑
-{
-    // 注册衣柜名称、描述，并将它加入家具分类的建造菜单。
-    [HarmonyPatch(typeof(GeneratedBuildings), "LoadGeneratedBuildings")]
-    public class StandaloneBuilding_LoadGeneratedBuildings
+    private static void Postfix()
     {
-        public static void Prefix()
-        {
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.NAME", "衣柜" });
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.EFFECT", "用于存放复制人的衣物" });
-            Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.DESC", "只能存放衣物，容量为 600 千克。" });
-            // 与上方 ID 保持一致；更换 ID 时也需要同步本地化键名。
-            ModUtil.AddBuildingToPlanScreen("Furniture", StandaloneBuildingConfig.ID);
-        }
-    }
-}
-public class MyModStrings
-{
-    public class UI
-    {
-        public class BUILDINGCATEGORIES
-        {
-            // 变量名必须是【分类名全大写】_NAME
-            public static LocString MYCUSTOMCATEGORY_NAME = "我的专属建筑";
-            public static LocString MYCUSTOMCATEGORY_TOOLTIP = "这里存放着我制作的自定义建筑。";
-        }
+        if (buildingsAddedToPlanScreen)
+            return;
+
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.NAME", "缝纫机" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.EFFECT", "在通往时尚的道路上也是一种时尚" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.SEWINGMACHINE.DESC", "可以通过相应原料生产服装" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.NAME", "衣柜" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.EFFECT", "用于存放复制人的衣物" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.DESC", "只能存放衣物，容量为 600 千克。" });
+
+        ModUtil.AddBuildingToPlanScreen("Furniture", SewingMachineConfig.ID);
+        ModUtil.AddBuildingToPlanScreen("Furniture", StandaloneBuildingConfig.ID);
+        buildingsAddedToPlanScreen = true;
     }
 }
