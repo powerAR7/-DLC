@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BrewingBarrel.cs" />
     <Compile Include="BrewingComponent.cs" />
     <Compile Include="CookingStationPatch.cs" />
     <Compile Include="HuLaTangConfig.cs" />

@@ -232,9 +232,13 @@ internal static class GeneratedBuildings_LoadGeneratedBuildings
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.NAME", "衣柜" });
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.EFFECT", "用于存放复制人的衣物" });
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.STANDALONEBUILDING.DESC", "只能存放衣物，容量为 600 千克。" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGBARREL.NAME", "静置发酵桶" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGBARREL.EFFECT", "静置发酵：将变质的胡辣汤静置发酵为乙醇，无需人工干预。" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGBARREL.DESC", "静置发酵：将变质的胡辣汤静置发酵为乙醇，无需人工干预。" });
 
         ModUtil.AddBuildingToPlanScreen("Furniture", SewingMachineConfig.ID);
         ModUtil.AddBuildingToPlanScreen("Furniture", StandaloneBuildingConfig.ID);
+        ModUtil.AddBuildingToPlanScreen("Refining", BrewingBarrel.BrewingBarrelConfig.ID);
         buildingsAddedToPlanScreen = true;
     }
 }

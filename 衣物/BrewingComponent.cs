@@ -24,7 +24,7 @@ namespace BrewingSystem
         private float consumedWaterMass = 0f;
 
         [Serialize]
-        private float timeSinceLastProgressPopup;
+        private int lastProgressPopupPercent = -1;
 
         private bool completed;
 
@@ -87,18 +87,19 @@ namespace BrewingSystem
 
             if (fermenting)
             {
-                timeSinceLastProgressPopup += dt;
-                if (timeSinceLastProgressPopup >= 20f && progress < targetProgress)
+                int percentage = targetProgress <= 0f
+                    ? 100
+                    : Mathf.FloorToInt(progress / targetProgress * 100f);
+                if (percentage > lastProgressPopupPercent && progress < targetProgress)
                 {
-                    float percentage = targetProgress <= 0f ? 100f : progress / targetProgress * 100f;
                     PopFXManager.Instance.SpawnFX(
                         PopFXManager.Instance.sprite_Resource,
-                        string.Format("发酵中... ({0:0}%)", percentage),
+                        string.Format("发酵中... ({0}%)", percentage),
                         transform,
                         new Vector3(0f, 0.8f, 0f),
                         1.5f,
                         true);
-                    timeSinceLastProgressPopup = 0f;
+                    lastProgressPopupPercent = percentage;
                 }
             }
 
