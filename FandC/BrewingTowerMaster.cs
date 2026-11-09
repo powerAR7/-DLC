@@ -14,7 +14,7 @@ namespace FandC
         private AttachableBuilding attachable;
         private Storage masterStorage;
         private List<GameObject> above = new List<GameObject>();   // 不能 readonly，ref 传参
-        private readonly List<Storage> aboveStorages = new List<Storage>();
+        private readonly List<Storage> barrelStorages = new List<Storage>();
 
         protected override void OnSpawn()
         {
@@ -22,7 +22,7 @@ namespace FandC
             attachable = GetComponent<AttachableBuilding>();
             masterStorage = GetComponent<Storage>();
             if (attachable != null) attachable.onAttachmentNetworkChanged += OnNetworkChanged;
-            RebuildAbove();
+            RebuildBarrelStorages();
         }
 
         protected override void OnCleanUp()
@@ -33,19 +33,22 @@ namespace FandC
 
         private void OnNetworkChanged(object who)
         {
-            RebuildAbove();
+            RebuildBarrelStorages();
         }
 
-        private void RebuildAbove()
+        private void RebuildBarrelStorages()
         {
             above.Clear();
-            aboveStorages.Clear();
+            barrelStorages.Clear();
             if (attachable == null) return;
             AttachableBuilding.GetAttachedAbove(attachable, ref above);
             for (int i = 0; i < above.Count; i++)
             {
-                Storage storage = above[i].GetComponent<Storage>();
-                if (storage != null) aboveStorages.Add(storage);
+                BrewingBarrel barrel = above[i].GetComponent<BrewingBarrel>();
+                if (barrel != null && barrel.LiquidStorage != null)
+                {
+                    barrelStorages.Add(barrel.LiquidStorage);
+                }
             }
         }
 
@@ -56,10 +59,20 @@ namespace FandC
             int cell = Grid.PosToCell(gameObject);
             if (!Grid.IsValidCell(cell)) return;
 
-            for (int i = 0; i < aboveStorages.Count; i++)
+            for (int i = 0; i < barrelStorages.Count; i++)
             {
-                Storage layer = aboveStorages[i];
-                masterStorage.Transfer(layer, GameTags.Water, waterPerSecond * dt, false, false);
+                Storage layer = barrelStorages[i];
+                if (layer == null || layer.gameObject == null) continue;
+                if (masterStorage == null) return;
+
+                float available = masterStorage.GetMassAvailable(GameTags.Water);
+                float room = layer.RemainingCapacity();
+                if (room <= 0f) continue;
+
+                float amountToTransfer = Mathf.Min(waterPerSecond * dt, Mathf.Min(available, room));
+                if (amountToTransfer <= 0f) continue;
+
+                masterStorage.Transfer(layer, GameTags.Water, amountToTransfer, false, false);
                 SpawnStoredEthanol(layer, cell, ETHANOL_TRANSFER_RATE * dt);
             }
 

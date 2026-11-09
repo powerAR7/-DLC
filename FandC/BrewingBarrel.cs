@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using HarmonyLib;
 using KSerialization;
@@ -6,6 +7,112 @@ using TUNING;
 
 namespace FandC
 {
+    public class BrewingBarrel : KMonoBehaviour, IProgressBarSideScreen
+    {
+        public Storage LiquidStorage;
+        public Storage IngredientStorage;
+
+        public float GetProgressBarMaxValue()
+        {
+            return 1f;
+        }
+
+        private float GetCurrentWorkingProgress()
+        {
+            if (this == null || gameObject == null)
+            {
+                return 0f;
+            }
+
+            ComplexFabricator fabricator = GetComponent<ComplexFabricator>();
+            if (fabricator == null || fabricator.CurrentWorkingOrder == null)
+            {
+                return 0f;
+            }
+
+            return Mathf.Clamp01(fabricator.OrderProgress);
+        }
+
+        public Color GetCurrentProgressColor()
+        {
+            return GetCurrentWorkingProgress() > 0f
+                ? new Color(1f, 0.5f, 0f)
+                : new Color(0.5f, 0.8f, 1f);
+        }
+
+        private float GetStoredHuLaTangUnits()
+        {
+            if (this == null || gameObject == null)
+            {
+                return 0f;
+            }
+
+            ComplexFabricator fabricator = GetComponent<ComplexFabricator>();
+            if (fabricator == null)
+            {
+                return 0f;
+            }
+
+            Tag hulaTag = HuLaTangConfig.ID.ToTag();
+            float totalUnits = 0f;
+            if (fabricator.inStorage != null)
+            {
+                totalUnits += fabricator.inStorage.GetAmountAvailable(hulaTag);
+            }
+            if (fabricator.buildStorage != null)
+            {
+                totalUnits += fabricator.buildStorage.GetAmountAvailable(hulaTag);
+            }
+
+            return totalUnits;
+        }
+
+        public float GetProgressBarFillPercentage()
+        {
+            if (this == null || gameObject == null)
+            {
+                return 0f;
+            }
+
+            ComplexFabricator fabricator = GetComponent<ComplexFabricator>();
+            if (fabricator != null && fabricator.CurrentWorkingOrder != null)
+            {
+                return GetCurrentWorkingProgress();
+            }
+
+            float waterMass = LiquidStorage != null ? LiquidStorage.GetMassAvailable(SimHashes.Water) : 0f;
+            float currentGrams = GetStoredHuLaTangUnits() * 1000f;
+
+            float waterPercent = Mathf.Clamp01(waterMass / 50f);
+            float hulaPercent = Mathf.Clamp01(currentGrams / 1000f);
+            return (waterPercent * 0.9f) + (hulaPercent * 0.1f);
+        }
+
+        public string GetProgressBarTitleLabel()
+        {
+            return "发酵与库存";
+        }
+
+        public string GetProgressBarLabel()
+        {
+            ComplexFabricator fabricator = GetComponent<ComplexFabricator>();
+            if (fabricator != null && fabricator.CurrentWorkingOrder != null)
+            {
+                float currentProgress = GetCurrentWorkingProgress();
+                return $"酿造中: {currentProgress * 100:F0}%";
+            }
+
+            float waterMass = LiquidStorage != null ? LiquidStorage.GetMassAvailable(SimHashes.Water) : 0f;
+            float currentGrams = GetStoredHuLaTangUnits() * 1000f;
+            return $"备料 - 水: {waterMass:F1}/50 | 料: {currentGrams:F0}/1000 克";
+        }
+
+        public string GetProgressBarTooltip()
+        {
+            return "备料完成后自动开始酿造";
+        }
+    }
+
     /// <summary>
     /// 搅拌型酿酒厂（最终版）：
     /// - 配方：胡辣汤 -> 乙醇（液体）
@@ -51,11 +158,17 @@ namespace FandC
 
         public override void ConfigureBuildingTemplate(GameObject go, Tag prefab_tag)
         {
+            BrewingBarrel barrel = go.AddOrGet<BrewingBarrel>();
             ConfigureFermenterTemplate(go, ID.ToTag(), true);
             go.AddOrGet<BuildingAttachPoint>().points = new BuildingAttachPoint.HardPoint[1]
             {
                 new BuildingAttachPoint.HardPoint(new CellOffset(0, 1), ID.ToTag(), null)
             };
+            Storage liquid = go.AddComponent<Storage>();
+            liquid.capacityKg = 50f;
+            liquid.showInUI = true;
+            liquid.storageFilters = new List<Tag> { GameTags.Liquid };
+            barrel.LiquidStorage = liquid;
             EnsureRecipesRegistered();
         }
 
@@ -81,15 +194,22 @@ namespace FandC
             {
                 storage.storageFilters = new List<Tag>();
             }
-            Tag waterTag = SimHashes.Water.CreateTag();
-            if (!storage.storageFilters.Contains(waterTag))
+            else
             {
-                storage.storageFilters.Add(waterTag);
+                storage.storageFilters.Clear();
             }
+            Tag waterTag = SimHashes.Water.CreateTag();
+            storage.storageFilters.Add(waterTag);
             Tag ethanolTag = SimHashes.Ethanol.CreateTag();
-            if (!storage.storageFilters.Contains(ethanolTag))
+            storage.storageFilters.Add(ethanolTag);
+            if (configureFabricator)
             {
-                storage.storageFilters.Add(ethanolTag);
+                storage.storageFilters.Add("HuLaTang".ToTag());
+                BrewingBarrel barrel = go.GetComponent<BrewingBarrel>();
+                if (barrel != null)
+                {
+                    barrel.IngredientStorage = storage;
+                }
             }
 
             AttachableBuilding attachable = go.AddOrGet<AttachableBuilding>();
@@ -221,6 +341,30 @@ namespace FandC
             RefreshStirChore();
         }
 
+        private void SpawnStoredEthanol()
+        {
+            Storage storage = GetComponent<Storage>();
+            if (storage == null) return;
+
+            float ethanol = storage.GetMassAvailable(SimHashes.Ethanol);
+            int cell = Grid.PosToCell(this);
+
+            if (ethanol <= 0f || !Grid.IsValidCell(cell)) return;
+
+            Element e = ElementLoader.FindElementByHash(SimHashes.Ethanol);
+            GameObject spawned = e.substance.SpawnResource(
+                Grid.CellToPos(cell),
+                ethanol,
+                e.defaultValues.temperature,
+                0,
+                0);
+
+            if (spawned != null)
+            {
+                storage.ConsumeIgnoringDisease(SimHashes.Ethanol.CreateTag(), ethanol);
+            }
+        }
+
         /// <summary>小人搅拌完成时调用（由 BrewingWorkable 触发）。</summary>
         public void Stir()
         {
@@ -250,7 +394,7 @@ namespace FandC
         }
 
         /// <summary>
-        /// 重写产物生成：液体不走 Assets.GetPrefab，直接用 Substance.SpawnResource 喷进世界。
+        /// 重写产物生成：液体优先存入塔主控；未连接主控时才喷进世界。
         /// </summary>
         protected override List<GameObject> SpawnOrderProduct(ComplexRecipe recipe)
         {
@@ -263,7 +407,11 @@ namespace FandC
 
                 if (element != null && element.IsLiquid)
                 {
-                    SpawnLiquid(element, result.amount);
+                    Storage masterStorage = FindMasterStorage();
+                    if (masterStorage == null || !StoreLiquid(masterStorage, element, result.amount))
+                    {
+                        SpawnLiquid(element, result.amount);
+                    }
                 }
                 else
                 {
@@ -273,6 +421,48 @@ namespace FandC
             }
 
             return spawned;
+        }
+
+        private Storage FindMasterStorage()
+        {
+            AttachableBuilding attachable = GetComponent<AttachableBuilding>();
+            BuildingAttachPoint attachedPoint = attachable != null ? attachable.GetAttachedTo() : null;
+            while (attachedPoint != null && attachedPoint.gameObject != null)
+            {
+                GameObject attachedObject = attachedPoint.gameObject;
+                if (attachedObject.GetComponent<BrewingTowerMaster>() != null)
+                {
+                    return attachedObject.GetComponent<Storage>();
+                }
+
+                AttachableBuilding parent = attachedObject.GetComponent<AttachableBuilding>();
+                attachedPoint = parent != null ? parent.GetAttachedTo() : null;
+            }
+
+            return null;
+        }
+
+        private static bool StoreLiquid(Storage storage, Element element, float mass)
+        {
+            int cell = Grid.PosToCell(storage.gameObject);
+            if (!Grid.IsValidCell(cell))
+            {
+                return false;
+            }
+
+            GameObject liquid = element.substance.SpawnResource(
+                Grid.CellToPos(cell),
+                mass,
+                element.defaultValues.temperature,
+                0,
+                0);
+            if (liquid == null)
+            {
+                return false;
+            }
+
+            storage.Store(liquid, false, false);
+            return true;
         }
 
         /// <summary>

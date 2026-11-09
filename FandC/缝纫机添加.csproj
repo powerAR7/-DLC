@@ -60,6 +60,9 @@
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>..\..\..\..\..\SteamLibrary\steamapps\common\OxygenNotIncluded\OxygenNotIncluded_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BrewingBarrel.cs" />
@@ -71,6 +74,7 @@
     <Compile Include="MyBaseFoodConfig.cs" />
     <Compile Include="AnimationLoader.cs" />
     <Compile Include="CoreComponents.cs" />
+    <Compile Include="ProgressBarColorPatch.cs" />
     <Compile Include="ClothingConfig.cs" />
     <Compile Include="Properties\Class1.cs" />
     <Compile Include="Properties\StandaloneBuilding.cs" />
