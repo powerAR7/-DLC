@@ -62,6 +62,32 @@ namespace BrewingBarrel
             get { return outStorage; }
         }
 
+        public bool EnforceTowerHeightLimit(BrewingTowerMaster owner)
+        {
+            if (owner == null)
+                return false;
+
+            float dy = Grid.CellToPos(Grid.PosToCell(gameObject)).y - owner.MasterY;
+            if (dy <= BrewingTowerMaster.MaxTowerLayers)
+                return false;
+
+            owner.ReturnIngredientsFrom(this);
+            Debug.LogWarning("[Brewing] " + name + " exceeds the " +
+                BrewingTowerMaster.MaxTowerLayers + "-layer tower limit; removing it and returning stored ingredients.");
+            if (PopFXManager.Instance != null)
+            {
+                PopFXManager.Instance.SpawnFX(
+                    PopFXManager.Instance.sprite_Negative,
+                    "酿造塔最多 " + BrewingTowerMaster.MaxTowerLayers + " 层，超出部分已拆除",
+                    owner.transform,
+                    1.5f);
+            }
+            if (SelectTool.Instance != null)
+                SelectTool.Instance.Select(null);
+            Util.KDestroyGameObject(gameObject);
+            return true;
+        }
+
         public int ReadyBatches
         {
             get
@@ -177,6 +203,7 @@ namespace BrewingBarrel
             if (attachable != null)
                 attachable.onAttachmentNetworkChanged += OnNetworkChanged;
             RefreshMaster();
+            EnforceTowerHeightLimit(master);
         }
 
         protected override void OnCleanUp()
@@ -369,6 +396,7 @@ namespace BrewingBarrel
         {
             base.OnSpawn();
             RefreshMaster();
+            EnforceTowerHeightLimit(master);
         }
 
         public void RefreshMaster()
@@ -391,6 +419,8 @@ namespace BrewingBarrel
     /// <summary>塔主控：管道进水/出酒、按配方液体原料给上层配液、统一搅拌。</summary>
     public class BrewingTowerMaster : KMonoBehaviour, ISim1000ms
     {
+        public const int MaxTowerLayers = 5;
+
         public Storage WaterStorage;
         public Storage IngredientStorage;
         public Storage OutputStorage;
@@ -408,6 +438,11 @@ namespace BrewingBarrel
         public bool IsStirred
         {
             get { return stirTimeLeft > 0f; }
+        }
+
+        public float MasterY
+        {
+            get { return Grid.CellToPos(Grid.PosToCell(gameObject)).y; }
         }
 
         protected override void OnSpawn()
@@ -431,13 +466,34 @@ namespace BrewingBarrel
             above.Clear();
             if (attachable == null) return;
 
-            // 整张附着网络里除自己以外的所有建筑都算塔体（不再按高度过滤，避免漏掉同层/多列）
+            float masterY = MasterY;
             List<GameObject> network = AttachableBuilding.GetAttachedNetwork(attachable);
             for (int i = 0; i < network.Count; i++)
             {
                 GameObject go = network[i];
                 if (go == null || go == gameObject) continue;
-                above.Add(go);
+                float dy = Grid.CellToPos(Grid.PosToCell(go)).y - masterY;
+                if (dy > 0f && dy <= MaxTowerLayers)
+                {
+                    above.Add(go);
+                }
+                else if (dy > MaxTowerLayers)
+                {
+                    BrewingTowerLayer layer = go.GetComponent<BrewingTowerLayer>();
+                    if (layer != null)
+                    {
+                        layer.RefreshMaster();
+                        layer.EnforceTowerHeightLimit(this);
+                        continue;
+                    }
+
+                    BrewingBarrelFabricator barrel = go.GetComponent<BrewingBarrelFabricator>();
+                    if (barrel != null)
+                    {
+                        barrel.RefreshMaster();
+                        barrel.EnforceTowerHeightLimit(this);
+                    }
+                }
             }
             for (int i = 0; i < above.Count; i++)
             {
@@ -516,6 +572,34 @@ namespace BrewingBarrel
                     return true;
             }
             return false;
+        }
+
+        public void ReturnIngredientsFrom(BrewingFabricatorBase fabricator)
+        {
+            if (fabricator == null || fabricator.inStorage == null)
+                return;
+
+            ComplexRecipe[] recipes = fabricator.GetRecipes();
+            HashSet<Tag> ingredientTags = new HashSet<Tag>();
+            for (int i = 0; i < recipes.Length; i++)
+            {
+                for (int j = 0; j < recipes[i].ingredients.Length; j++)
+                    ingredientTags.Add(recipes[i].ingredients[j].material);
+            }
+
+            foreach (Tag tag in ingredientTags)
+            {
+                Element element = ElementLoader.GetElement(tag);
+                Storage destination = element != null && element.IsLiquid
+                    ? WaterStorage
+                    : IngredientStorage;
+                if (destination == null)
+                    continue;
+
+                float amount = fabricator.inStorage.GetMassAvailable(tag);
+                if (amount > 0f)
+                    fabricator.inStorage.Transfer(destination, tag, amount, false, false);
+            }
         }
 
         private void DistributeIngredients()
@@ -762,11 +846,6 @@ namespace BrewingBarrel
     }
 
 }
-
-
-
-
-
 
 
 
