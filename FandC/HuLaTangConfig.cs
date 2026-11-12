@@ -69,9 +69,7 @@ public class HuLaTangConfig : MyBaseFoodConfig
 
     public override GameObject CreatePrefab()
     {
-        GameObject go = base.CreatePrefab();
-        go.AddOrGet<BrewingComponent>();
-        return go;
+        return base.CreatePrefab();
     }
 
     public override void OnPrefabInit(GameObject inst)

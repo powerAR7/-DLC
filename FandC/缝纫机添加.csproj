@@ -66,15 +66,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BrewingBarrel.cs" />
-    <Compile Include="BrewingComponent.cs" />
-    <Compile Include="BrewingTowerMaster.cs" />
     <Compile Include="BrewingTowerMasterConfig.cs" />
+    <Compile Include="BrewingTowerV2.cs" />
     <Compile Include="CookingStationPatch.cs" />
     <Compile Include="HuLaTangConfig.cs" />
     <Compile Include="MyBaseFoodConfig.cs" />
     <Compile Include="AnimationLoader.cs" />
     <Compile Include="CoreComponents.cs" />
-    <Compile Include="ProgressBarColorPatch.cs" />
     <Compile Include="ClothingConfig.cs" />
     <Compile Include="Properties\Class1.cs" />
     <Compile Include="Properties\StandaloneBuilding.cs" />

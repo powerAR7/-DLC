@@ -244,14 +244,14 @@ internal static class GeneratedBuildings_LoadGeneratedBuildings
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERMASTER.NAME", "酿造塔主控" });
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERMASTER.EFFECT", "为连接的发酵层供水并收集乙醇。" });
         Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERMASTER.DESC", "酿造塔底座，连接液体输入与乙醇输出管道。" });
-        Strings.Add(new string[] { "STRINGS.BUILDING.STATUSITEMS.NEEDLIQUIDIN.NAME", "缺少液体" });
-        Strings.Add(new string[] { "STRINGS.BUILDING.STATUSITEMS.NEEDLIQUIDIN.TOOLTIP", "缺少液体。为酿造桶供水后将继续发酵。" });
-        Strings.Add(new string[] { "STRINGS.BUILDING.STATUSITEMS.NEEDLIQUIDIN.LINE_ITEM", "缺少液体" });
-
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERLAYER.NAME", "酿造塔层" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERLAYER.EFFECT", "从酿造塔主控接收水并将乙醇输送至主控。" });
+        Strings.Add(new string[] { "STRINGS.BUILDINGS.PREFABS.BREWINGTOWERLAYER.DESC", "可垂直叠加的酿造塔层。" });
         ModUtil.AddBuildingToPlanScreen("Furniture", SewingMachineConfig.ID);
         ModUtil.AddBuildingToPlanScreen("Furniture", StandaloneBuildingConfig.ID);
         ModUtil.AddBuildingToPlanScreen("Refining", BrewingBarrelConfig.ID);
         ModUtil.AddBuildingToPlanScreen("Refining", BrewingTowerMasterConfig.ID);
+        // ModUtil.AddBuildingToPlanScreen("Refining", BrewingTowerLayerConfig.ID);
         buildingsAddedToPlanScreen = true;
     }
 }
